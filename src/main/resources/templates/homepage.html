@@ -1,0 +1,116 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#712cf9">
+
+    <title>Lucid Example App</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+    <style>
+        .body-container {
+            display: flex;
+            flex-flow: column wrap;
+            justify-content: center;
+            padding-top: 20px;
+            gap: 15px;
+        }
+
+        .container {
+            max-width: 1000px;
+            display: flex;
+            flex-flow: column wrap;
+            align-content: flex-start;
+            gap: 15px;
+        }
+
+        .connect-container {
+            width: 500px;
+            display: flex;
+            flex-flow: row wrap;
+            align-content: flex-start;
+            gap: 15px;
+        }
+
+        .cards-container {
+            padding-top: 15px;
+            display: flex;
+            flex-flow: row wrap;
+            gap: 20px;
+        }
+
+        .user-card {
+            width: 310px;
+        }
+    </style>
+</head>
+
+<body class="body-container">
+<header class="container">
+    <img class="mb-4" src="https://cdn-cashy-static-assets.lucidchart.com/lucid/logos/lucid.svg" alt="" width="200" height="30">
+    <div class="description-container">
+        <p>This mock application simulates having multiple users.</p>
+        <p>You can create more users, link and unlink each user to different Lucid account.</p>
+        <p class="mt-3 mb-3 text-muted">This app is for demonstration purpose only. It was built to show how to integrate with Lucid's public API.</p>
+    </div>
+</header>
+
+<main class="container">
+
+    <h1 class="h3 mb-3 fw-normal">Create users for your app</h1>
+    <form class="connect-container" th:action="@{/createUser}" method="POST" th:object="${newUser}">
+        <div class="form-floating">
+            <input type="text" th:field="*{name}" class="form-control" id="name-input" placeholder="Name" minlength="3" required>
+            <label for="name-input">Name</label>
+        </div>
+
+        <button class="btn btn-primary" type="submit">Create user</button>
+    </form>
+
+    <h1 class="h3 mb-3 fw-normal">Users in your app</h1>
+    <p>Users who have already connected their Lucid account via OAuth2 authorization flow will display their profile information.</p>
+    <div class="cards-container">
+        <div class="card user-card" th:each="user: ${users}">
+            <div class="card-header bg-transparent">
+                <h5 class="card-title" th:text="${user.first.name}"></h5>
+            </div>
+            
+            <div class="card-body">
+                <th:block th:if="${user.second != null}">
+                    <h6 class="card-subtitle mb-2 text-muted">Lucid account information</h6>
+                    <p>Email: <span th:text="${user.second.email}"></span></p>
+                    <p>Lucid id: <span th:text="${user.second.id}"></span></p>
+                </th:block>
+
+                
+                <th:block th:if="${user.second == null}">
+                    <h6 class="card-subtitle mb-2 text-muted">Connect a Lucid account for this user</h6>
+                </th:block>
+            </div>
+
+            <div class="card-footer bg-transparent">
+                <th:block th:if="${user.second != null}">
+                    <form th:action="@{/oauth2/revoke/{id}(id = ${user.first.id})}" method="POST"> 
+                        <button class="btn btn-danger connect-button">Disconnect</button>
+                    </form>
+                </th:block>
+
+                <th:block th:if="${user.second == null}">
+                        <button
+                            id="oauth2-flow-start"
+                            class="btn btn-primary connect-button" 
+                            th:attr="onclick=|startAuthorizationFlow('${user.first.id}')|"
+                        >Connect</button>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!--Look at the script for a code example on how to start and handle the OAuth2 authorization flow -->
+<script th:src="@{/connect.js}" defer></script>
+
+</body>
+</html>

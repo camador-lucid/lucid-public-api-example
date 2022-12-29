@@ -1,0 +1,7 @@
+server.port=8081
+service.url=http://localhost:8081
+
+lucid.webUrl=https://lucid.app
+lucid.apiUrl=https://api.lucid.co
+lucid.oauth2.clientId=<your-client-id>
+lucid.oauth2.clientSecret=<your-client-secret>
